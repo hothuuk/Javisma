@@ -1,5 +1,6 @@
 package data.schema;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -9,13 +10,17 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class LoadSchemaFilesTest {
 
+    private LoadSchemaFiles loadSchemaFiles;
+
+    @BeforeEach
+    public void setUp() {
+        loadSchemaFiles = new LoadSchemaFiles();
+    }
+
     @Test
     @DisplayName("스키마 파일 불러오기 테스트")
     public void load_schema_files() {
-        // Given
-        LoadSchemaFiles loadSchemaFiles = new LoadSchemaFiles();
-
-        // When
+        // Given & When
         URL url = loadSchemaFiles.load();
 
         // Then
@@ -27,7 +32,6 @@ public class LoadSchemaFilesTest {
     public void custom_file_directory() {
         // Given
         String customFile = "/custom/custom.schema.javisma";
-        LoadSchemaFiles loadSchemaFiles = new LoadSchemaFiles();
 
         // When
         URL url = loadSchemaFiles.load(customFile);
