@@ -39,4 +39,18 @@ public class LoadSchemaFilesTest {
         // Then
         assertNotNull(url);
     }
+
+    @Test
+    @DisplayName("경로에 스키마 파일이 없는 경우 테스트")
+    public void file_not_found() {
+        // Given
+        String customFile = "/error.javisma";
+
+        // When & Then
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
+                loadSchemaFiles.load(customFile)
+        );
+
+        assertEquals("Schema file is not found.", exception.getMessage());
+    }
 }
