@@ -15,6 +15,12 @@ public class LoadSchemaFiles {
     }
 
     private URL getURL(String fileName) {
-        return getClass().getResource(fileName);
+        URL url = getClass().getResource(fileName);
+
+        if (url == null) {
+            throw new IllegalArgumentException("Schema file is not found.");
+        }
+
+        return url;
     }
 }
