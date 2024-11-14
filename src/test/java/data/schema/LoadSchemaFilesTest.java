@@ -21,4 +21,18 @@ public class LoadSchemaFilesTest {
         // Then
         assertNotNull(url);
     }
+
+    @Test
+    @DisplayName("커스텀 경로에서 스키마 파일 불러오기 테스트")
+    public void custom_file_directory() {
+        // Given
+        String customFile = "/custom/custom.schema.javisma";
+        LoadSchemaFiles loadSchemaFiles = new LoadSchemaFiles();
+
+        // When
+        URL url = loadSchemaFiles.load(customFile);
+
+        // Then
+        assertNotNull(url);
+    }
 }
