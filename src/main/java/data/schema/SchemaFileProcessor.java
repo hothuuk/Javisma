@@ -11,31 +11,32 @@ public class SchemaFileProcessor {
     private final LoadSchemaFiles loadSchemaFiles;
 
     public SchemaFileProcessor() {
-        loadSchemaFiles = new LoadSchemaFiles();
+        this.loadSchemaFiles = new LoadSchemaFiles();
     }
 
     public Map<String, String> parse(String blockName) {
         String filePath = loadSchemaFiles.load().getPath();
-        return parseConfig(filePath, blockName);
-    }
-
-    private Map<String, String> parseConfig(String filePath, String blockName) {
-        Map<String, String> config = new HashMap<>();
-        String blockContent = "";
 
         try {
-            blockContent = loadBlockContent(filePath, blockName);
+            String blockContent = loadBlockContent(filePath, blockName);
+            return parseConfig(blockContent);
         } catch (IOException e) {
-            e.printStackTrace();
+            return new HashMap<>();
         }
+    }
 
+    private Map<String, String> parseConfig(String blockContent) {
+        Map<String, String> config = new HashMap<>();
         String[] lines = blockContent.split("\n");
 
         for (String line : lines) {
             String[] tokens = line.split(" = ");
-            String key = tokens[0];
-            String value = tokens[1].replace("\"", "");
-            config.put(key, value);
+
+            if (tokens.length == 2) {
+                String key = tokens[0].trim();
+                String value = tokens[1].replace("\"", "").trim();
+                config.put(key, value);
+            }
         }
 
         return config;
@@ -49,6 +50,7 @@ public class SchemaFileProcessor {
             boolean foundBlock = false;
 
             while ((line = br.readLine()) != null) {
+                line = line.trim();
 
                 if (line.startsWith(blockName)) {
                     foundBlock = true;
@@ -56,11 +58,11 @@ public class SchemaFileProcessor {
                 }
 
                 if (foundBlock) {
-                    if (line.startsWith("}")) {
+                    if (line.equals("}")) {
                         break;
                     }
 
-                    blockContent.append(line.trim()).append("\n");
+                    blockContent.append(line).append("\n");
                 }
             }
         }
