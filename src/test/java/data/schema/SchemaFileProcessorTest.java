@@ -24,7 +24,7 @@ public class SchemaFileProcessorTest {
         String blockName = "datasource";
 
         // When
-        Map<String, String> config = schemaFileProcessor.parse(blockName);
+        Map<String, String> config = schemaFileProcessor.parseDatasource(blockName);
 
         // Then
         assertEquals("DATABASE_URL", config.get("url"));
