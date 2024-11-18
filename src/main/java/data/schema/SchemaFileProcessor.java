@@ -5,6 +5,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 
 public class SchemaFileProcessor {
 
@@ -14,23 +15,20 @@ public class SchemaFileProcessor {
         this.loadSchemaFiles = new LoadSchemaFiles();
     }
 
-    public Map<String, String> parse(String blockName) {
-        String filePath = loadSchemaFiles.load().getPath();
-
-        try {
-            String blockContent = loadBlockContent(filePath, blockName);
-            return parseConfig(blockContent);
-        } catch (IOException e) {
-            return new HashMap<>();
-        }
+    public Map<String, String> parseDatasource(String blockName) {
+        return parse(blockName, this::parseConfig);
     }
 
     public Map<String, String> parseModel(String blockName) {
+        return parse(blockName, this::parseModelConfig);
+    }
+
+    private Map<String, String> parse(String blockName, Function<String, Map<String, String>> parser) {
         String filePath = loadSchemaFiles.load().getPath();
 
         try {
             String blockContent = loadBlockContent(filePath, blockName);
-            return parseModelConfig(blockContent);
+            return parser.apply(blockContent);
         } catch (IOException e) {
             return new HashMap<>();
         }
@@ -38,15 +36,12 @@ public class SchemaFileProcessor {
 
     private Map<String, String> parseConfig(String blockContent) {
         Map<String, String> config = new HashMap<>();
-        String[] lines = blockContent.split("\n");
 
-        for (String line : lines) {
+        for (String line : blockContent.split("\n")) {
             String[] tokens = line.split(" = ");
 
             if (tokens.length == 2) {
-                String key = tokens[0].trim();
-                String value = tokens[1].replace("\"", "").trim();
-                config.put(key, value);
+                config.put(tokens[0], tokens[1].replace("\"", ""));
             }
         }
 
@@ -55,15 +50,12 @@ public class SchemaFileProcessor {
 
     private Map<String, String> parseModelConfig(String blockContent) {
         Map<String, String> config = new HashMap<>();
-        String[] lines = blockContent.split("\n");
 
-        for (String line : lines) {
+        for (String line : blockContent.split("\n")) {
             String[] tokens = line.split(" ");
 
             if (tokens.length == 2) {
-                String key = tokens[0];
-                String value = tokens[1];
-                config.put(key, value);
+                config.put(tokens[0], tokens[1]);
             }
         }
 
@@ -89,7 +81,6 @@ public class SchemaFileProcessor {
                     if (line.equals("}")) {
                         break;
                     }
-
                     blockContent.append(line).append("\n");
                 }
             }
