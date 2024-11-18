@@ -31,4 +31,19 @@ public class SchemaFileProcessorTest {
         assertEquals("DATABASE_USER", config.get("user"));
         assertEquals("DATABASE_PASSWORD", config.get("password"));
     }
+
+    @Test
+    @DisplayName("모델 정보 파싱 테스트")
+    public void schema_model_parsing() {
+        // Given
+        String blockName = "model";
+
+        // When
+        Map<String, String> config = schemaFileProcessor.parseModel(blockName);
+
+        // Then
+        assertEquals("Int", config.get("id"));
+        assertEquals("String", config.get("email"));
+        assertEquals("String", config.get("name"));
+    }
 }

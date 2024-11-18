@@ -25,6 +25,17 @@ public class SchemaFileProcessor {
         }
     }
 
+    public Map<String, String> parseModel(String blockName) {
+        String filePath = loadSchemaFiles.load().getPath();
+
+        try {
+            String blockContent = loadBlockContent(filePath, blockName);
+            return parseModelConfig(blockContent);
+        } catch (IOException e) {
+            return new HashMap<>();
+        }
+    }
+
     private Map<String, String> parseConfig(String blockContent) {
         Map<String, String> config = new HashMap<>();
         String[] lines = blockContent.split("\n");
@@ -35,6 +46,23 @@ public class SchemaFileProcessor {
             if (tokens.length == 2) {
                 String key = tokens[0].trim();
                 String value = tokens[1].replace("\"", "").trim();
+                config.put(key, value);
+            }
+        }
+
+        return config;
+    }
+
+    private Map<String, String> parseModelConfig(String blockContent) {
+        Map<String, String> config = new HashMap<>();
+        String[] lines = blockContent.split("\n");
+
+        for (String line : lines) {
+            String[] tokens = line.split(" ");
+
+            if (tokens.length == 2) {
+                String key = tokens[0];
+                String value = tokens[1];
                 config.put(key, value);
             }
         }

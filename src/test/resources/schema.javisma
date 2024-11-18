@@ -3,3 +3,9 @@ datasource db {
     user = "DATABASE_USER"
     password = "DATABASE_PASSWORD"
 }
+
+model User {
+    id Int
+    email String
+    name String
+}
