@@ -2,6 +2,7 @@ package data.schema;
 
 import data.schema.config.Datasource;
 import data.schema.config.Model;
+import data.schema.parser.Block;
 import data.schema.parser.DatasourceParser;
 import data.schema.parser.ModelParser;
 
@@ -22,16 +23,19 @@ public class SchemaFileProcessor {
     }
 
     public Datasource parseDatasource() {
-        return datasourceParser.parse(loadBlockContent("datasource"));
+        Block block = loadBlock("datasource");
+        return datasourceParser.parse(block);
     }
 
     public Model parseModel() {
-        return modelParser.parse(loadBlockContent("model"));
+        Block block = loadBlock("model");
+        return modelParser.parse(block);
     }
 
-    private String loadBlockContent(String blockName) {
+    private Block loadBlock(String blockName) {
         StringBuilder blockContent = new StringBuilder();
         String filePath = loadSchemaFiles.load().getPath();
+        String name = "";
 
         try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
             String line;
@@ -42,6 +46,7 @@ public class SchemaFileProcessor {
 
                 if (line.startsWith(blockName)) {
                     foundBlock = true;
+                    name = line.split(" ")[1];
                     continue;
                 }
 
@@ -57,6 +62,6 @@ public class SchemaFileProcessor {
             e.printStackTrace();
         }
 
-        return blockContent.toString();
+        return new Block(name, blockContent.toString());
     }
 }
