@@ -1,10 +1,13 @@
 package data.schema;
 
+import data.schema.config.Datasource;
+import data.schema.config.Field;
+import data.schema.config.Model;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.util.Map;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -20,30 +23,37 @@ public class SchemaFileProcessorTest {
     @Test
     @DisplayName("데이터베이스 정보 파싱 테스트")
     public void schema_datasource_parsing() {
-        // Given
-        String blockName = "datasource";
+        // Given & When: 파싱 수행
+        Datasource datasource = schemaFileProcessor.parseDatasource();
 
-        // When
-        Map<String, String> config = schemaFileProcessor.parseDatasource(blockName);
-
-        // Then
-        assertEquals("DATABASE_URL", config.get("url"));
-        assertEquals("DATABASE_USER", config.get("user"));
-        assertEquals("DATABASE_PASSWORD", config.get("password"));
+        // Then: 값 검증
+        assertAll(
+                () -> assertEquals("DATABASE_URL", datasource.getUrl(), "url 이 맞지 않습니다."),
+                () -> assertEquals("DATABASE_USER", datasource.getUser(), "user 가 맞지 않습니다."),
+                () -> assertEquals("DATABASE_PASSWORD", datasource.getPassword(), "password 가 맞지 않습니다.")
+        );
     }
 
     @Test
     @DisplayName("모델 정보 파싱 테스트")
     public void schema_model_parsing() {
-        // Given
-        String blockName = "model";
+        // Given & When: 파싱 수행
+        Model model = schemaFileProcessor.parseModel();
+        List<Field> fields = model.getFields();
 
-        // When
-        Map<String, String> config = schemaFileProcessor.parseModel(blockName);
+        // Then: 필드 개수 및 값 검증
+        assertAll(
+                () -> assertEquals(3, fields.size(), "필드 개수가 맞지 않습니다."),
+                () -> assertField(fields.get(0), "id", "Int"),
+                () -> assertField(fields.get(1), "email", "String"),
+                () -> assertField(fields.get(2), "name", "String")
+        );
+    }
 
-        // Then
-        assertEquals("Int", config.get("id"));
-        assertEquals("String", config.get("email"));
-        assertEquals("String", config.get("name"));
+    private void assertField(Field field, String expectedName, String expectedType) {
+        assertAll(
+                () -> assertEquals(expectedName, field.getName(), "필드 이름이 맞지 않습니다."),
+                () -> assertEquals(expectedType, field.getType(), "필드 타입이 맞지 않습니다.")
+        );
     }
 }
