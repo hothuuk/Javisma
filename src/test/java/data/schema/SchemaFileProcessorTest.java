@@ -28,9 +28,9 @@ public class SchemaFileProcessorTest {
 
         // Then: 값 검증
         assertAll(
-                () -> assertEquals("DATABASE_URL", datasource.getUrl(), "url 이 맞지 않습니다."),
-                () -> assertEquals("DATABASE_USER", datasource.getUser(), "user 가 맞지 않습니다."),
-                () -> assertEquals("DATABASE_PASSWORD", datasource.getPassword(), "password 가 맞지 않습니다.")
+                () -> assertEquals("DATABASE_URL", datasource.url(), "url 이 맞지 않습니다."),
+                () -> assertEquals("DATABASE_USER", datasource.user(), "user 가 맞지 않습니다."),
+                () -> assertEquals("DATABASE_PASSWORD", datasource.password(), "password 가 맞지 않습니다.")
         );
     }
 
@@ -39,10 +39,10 @@ public class SchemaFileProcessorTest {
     public void schema_model_parsing() {
         // Given & When: 파싱 수행
         Model model = schemaFileProcessor.parseModel();
-        List<Field> fields = model.getFields();
+        List<Field> fields = model.fields();
 
         // Then: 모델과 필드 검증
-        assertEquals("User", model.getName(), "모델 이름이 맞지 않습니다.");
+        assertEquals("User", model.name(), "모델 이름이 맞지 않습니다.");
 
         assertAll("필드 개수 및 값 검증",
                 () -> assertEquals(3, fields.size(), "필드 개수가 맞지 않습니다."),
@@ -54,8 +54,8 @@ public class SchemaFileProcessorTest {
 
     private void assertField(Field field, String expectedName, String expectedType) {
         assertAll(
-                () -> assertEquals(expectedName, field.getName(), "필드 이름이 맞지 않습니다."),
-                () -> assertEquals(expectedType, field.getType(), "필드 타입이 맞지 않습니다.")
+                () -> assertEquals(expectedName, field.name(), "필드 이름이 맞지 않습니다."),
+                () -> assertEquals(expectedType, field.type(), "필드 타입이 맞지 않습니다.")
         );
     }
 }
