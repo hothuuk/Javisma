@@ -9,6 +9,8 @@ import data.schema.parser.ModelParser;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class SchemaFileProcessor {
 
@@ -23,45 +25,63 @@ public class SchemaFileProcessor {
     }
 
     public Datasource parseDatasource() {
-        Block block = loadBlock("datasource");
+        Block block = loadBlocks("datasource").get(0);
         return datasourceParser.parse(block);
     }
 
-    public Model parseModel() {
-        Block block = loadBlock("model");
-        return modelParser.parse(block);
+    public List<Model> parseModels() {
+        List<Block> blocks = loadBlocks("model");
+        List<Model> models = new ArrayList<>();
+
+        for (Block block : blocks) {
+            models.add(modelParser.parse(block));
+        }
+
+        return models;
     }
 
-    private Block loadBlock(String blockName) {
-        StringBuilder blockContent = new StringBuilder();
+    private List<Block> loadBlocks(String blockName) {
+        List<Block> blocks = new ArrayList<>();
         String filePath = loadSchemaFiles.load().getPath();
-        String name = "";
 
         try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
             String line;
             boolean foundBlock = false;
+            StringBuilder blockContent = new StringBuilder();
+            String name = "";
 
             while ((line = br.readLine()) != null) {
                 line = line.trim();
 
                 if (line.startsWith(blockName)) {
+                    if (foundBlock) {
+                        blocks.add(new Block(name, blockContent.toString()));
+                    }
+
                     foundBlock = true;
                     name = line.split(" ")[1];
+                    blockContent = new StringBuilder();
                     continue;
                 }
 
                 if (foundBlock) {
                     if (line.equals("}")) {
-                        break;
+                        blocks.add(new Block(name, blockContent.toString()));
+                        foundBlock = false;
+                    } else {
+                        blockContent.append(line).append("\n");
                     }
-
-                    blockContent.append(line).append("\n");
                 }
             }
+
+            if (foundBlock) {
+                blocks.add(new Block(name, blockContent.toString()));
+            }
+
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        return new Block(name, blockContent.toString());
+        return blocks;
     }
 }
