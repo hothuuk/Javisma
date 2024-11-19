@@ -4,8 +4,12 @@ import data.schema.config.Datasource;
 
 public class DatasourceParser {
 
-    public Datasource parse(String blockContent) {
-        Datasource datasource = new Datasource();
+    public Datasource parse(Block block) {
+        String blockContent = block.content();
+
+        String url = "";
+        String user = "";
+        String password = "";
 
         for (String line : blockContent.split("\n")) {
             String[] tokens = line.split(" = ");
@@ -13,12 +17,12 @@ public class DatasourceParser {
             String value = tokens[1].replace("\"", "");
 
             switch (key) {
-                case "url" -> datasource.setUrl(value);
-                case "user" -> datasource.setUser(value);
-                case "password" -> datasource.setPassword(value);
+                case "url" -> url = value;
+                case "user" -> user = value;
+                case "password" -> password = value;
             }
         }
 
-        return datasource;
+        return new Datasource(url, user, password);
     }
 }
