@@ -1,69 +1,37 @@
 package data.schema;
 
+import data.schema.config.Datasource;
+import data.schema.config.Model;
+import data.schema.parser.DatasourceParser;
+import data.schema.parser.ModelParser;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.Function;
 
 public class SchemaFileProcessor {
 
     private final LoadSchemaFiles loadSchemaFiles;
+    private final DatasourceParser datasourceParser;
+    private final ModelParser modelParser;
 
     public SchemaFileProcessor() {
         this.loadSchemaFiles = new LoadSchemaFiles();
+        this.datasourceParser = new DatasourceParser();
+        this.modelParser = new ModelParser();
     }
 
-    public Map<String, String> parseDatasource(String blockName) {
-        return parse(blockName, this::parseConfig);
+    public Datasource parseDatasource() {
+        return datasourceParser.parse(loadBlockContent("datasource"));
     }
 
-    public Map<String, String> parseModel(String blockName) {
-        return parse(blockName, this::parseModelConfig);
+    public Model parseModel() {
+        return modelParser.parse(loadBlockContent("model"));
     }
 
-    private Map<String, String> parse(String blockName, Function<String, Map<String, String>> parser) {
-        String filePath = loadSchemaFiles.load().getPath();
-
-        try {
-            String blockContent = loadBlockContent(filePath, blockName);
-            return parser.apply(blockContent);
-        } catch (IOException e) {
-            return new HashMap<>();
-        }
-    }
-
-    private Map<String, String> parseConfig(String blockContent) {
-        Map<String, String> config = new HashMap<>();
-
-        for (String line : blockContent.split("\n")) {
-            String[] tokens = line.split(" = ");
-
-            if (tokens.length == 2) {
-                config.put(tokens[0], tokens[1].replace("\"", ""));
-            }
-        }
-
-        return config;
-    }
-
-    private Map<String, String> parseModelConfig(String blockContent) {
-        Map<String, String> config = new HashMap<>();
-
-        for (String line : blockContent.split("\n")) {
-            String[] tokens = line.split(" ");
-
-            if (tokens.length == 2) {
-                config.put(tokens[0], tokens[1]);
-            }
-        }
-
-        return config;
-    }
-
-    private String loadBlockContent(String filePath, String blockName) throws IOException {
+    private String loadBlockContent(String blockName) {
         StringBuilder blockContent = new StringBuilder();
+        String filePath = loadSchemaFiles.load().getPath();
 
         try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
             String line;
@@ -81,9 +49,12 @@ public class SchemaFileProcessor {
                     if (line.equals("}")) {
                         break;
                     }
+
                     blockContent.append(line).append("\n");
                 }
             }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 
         return blockContent.toString();
