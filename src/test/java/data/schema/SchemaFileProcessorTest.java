@@ -41,8 +41,10 @@ public class SchemaFileProcessorTest {
         Model model = schemaFileProcessor.parseModel();
         List<Field> fields = model.getFields();
 
-        // Then: 필드 개수 및 값 검증
-        assertAll(
+        // Then: 모델과 필드 검증
+        assertEquals("User", model.getName(), "모델 이름이 맞지 않습니다.");
+
+        assertAll("필드 개수 및 값 검증",
                 () -> assertEquals(3, fields.size(), "필드 개수가 맞지 않습니다."),
                 () -> assertField(fields.get(0), "id", "Int"),
                 () -> assertField(fields.get(1), "email", "String"),
