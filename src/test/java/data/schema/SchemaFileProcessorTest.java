@@ -38,17 +38,28 @@ public class SchemaFileProcessorTest {
     @DisplayName("모델 정보 파싱 테스트")
     public void schema_model_parsing() {
         // Given & When: 파싱 수행
-        Model model = schemaFileProcessor.parseModel();
-        List<Field> fields = model.fields();
+        List<Model> models = schemaFileProcessor.parseModels();
 
         // Then: 모델과 필드 검증
-        assertEquals("User", model.name(), "모델 이름이 맞지 않습니다.");
+        // 첫 번째 모델 검증
+        Model firstModel = models.get(0);
+        List<Field> firstFields = firstModel.fields();
+        assertEquals("User", firstModel.name(), "모델 이름이 맞지 않습니다.");
+        assertAll("첫 번째 모델 필드 검증",
+                () -> assertEquals(3, firstFields.size(), "필드 개수가 맞지 않습니다."),
+                () -> assertField(firstFields.get(0), "id", "Int"),
+                () -> assertField(firstFields.get(1), "email", "String"),
+                () -> assertField(firstFields.get(2), "name", "String")
+        );
 
-        assertAll("필드 개수 및 값 검증",
-                () -> assertEquals(3, fields.size(), "필드 개수가 맞지 않습니다."),
-                () -> assertField(fields.get(0), "id", "Int"),
-                () -> assertField(fields.get(1), "email", "String"),
-                () -> assertField(fields.get(2), "name", "String")
+        // 두 번째 모델 검증
+        Model secondModel = models.get(1);
+        List<Field> secondFields = secondModel.fields();
+        assertEquals("Post", secondModel.name(), "모델 이름이 맞지 않습니다.");
+        assertAll("두 번째 모델 필드 검증",
+                () -> assertEquals(2, secondFields.size(), "필드 개수가 맞지 않습니다."),
+                () -> assertField(secondFields.get(0), "title", "String"),
+                () -> assertField(secondFields.get(1), "content", "String")
         );
     }
 
