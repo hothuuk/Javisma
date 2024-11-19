@@ -9,3 +9,8 @@ model User {
     email String
     name String
 }
+
+model Post {
+    title String
+    content String
+}
