@@ -3,13 +3,17 @@ package data.schema;
 import data.schema.config.Datasource;
 import data.schema.config.Field;
 import data.schema.config.Model;
+import data.schema.parser.DatasourceParser;
+import data.schema.parser.ModelParser;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.io.*;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 public class SchemaFileProcessorTest {
 
@@ -68,5 +72,37 @@ public class SchemaFileProcessorTest {
                 () -> assertEquals(expectedName, field.name(), "필드 이름이 맞지 않습니다."),
                 () -> assertEquals(expectedType, field.type(), "필드 타입이 맞지 않습니다.")
         );
+    }
+
+    @Test
+    @DisplayName("블럭이 닫히지 않을 경우 테스트")
+    public void block_is_not_closed() throws IOException {
+        // Given: 닫히지 않은 블럭을 포함한 스키마 파일 준비
+        String mockSchema = """
+                datasource db {
+                    url = "url"
+                    user = "user"
+                    password = "password"
+                
+                model User {
+                    id Int
+                }
+                """;
+
+        File tempFile = File.createTempFile("schema", ".javisma");
+        tempFile.deleteOnExit();
+
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile))) {
+            writer.write(mockSchema);
+        }
+
+        LoadSchemaFiles mockLoadSchemaFiles = mock(LoadSchemaFiles.class);
+        when(mockLoadSchemaFiles.load()).thenReturn(tempFile.toURI().toURL());
+
+        SchemaFileProcessor schemaFileProcessor = new SchemaFileProcessor(mockLoadSchemaFiles, new DatasourceParser(), new ModelParser());
+
+        // When & Then: 블럭이 닫히지 않음으로 인해 Exception 발생
+        Exception exception = assertThrows(IllegalStateException.class, schemaFileProcessor::parseDatasource);
+        assertTrue(exception.getMessage().contains("블럭이 닫히지 않았습니다."), "예외 메시지가 올바르지 않습니다.");
     }
 }
