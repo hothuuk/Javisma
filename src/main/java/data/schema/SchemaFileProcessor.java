@@ -52,8 +52,7 @@ public class SchemaFileProcessor {
 
         try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
             String line;
-            boolean foundBlock = false;
-            boolean closedBlock = true;
+            boolean isBlockOpen = false;
             StringBuilder blockContent = new StringBuilder();
             String name = "";
 
@@ -61,33 +60,31 @@ public class SchemaFileProcessor {
                 line = line.trim();
 
                 if (line.startsWith(blockName)) {
-                    if (!closedBlock) {
+                    if (isBlockOpen) {
                         throw new IllegalStateException("블럭이 닫히지 않았습니다.");
                     }
 
-                    foundBlock = true;
-                    closedBlock = false;
+                    isBlockOpen = true;
                     name = line.split(" ")[1];
                     blockContent = new StringBuilder();
                     continue;
                 }
 
-                if (foundBlock && (line.startsWith("datasource") || line.startsWith("model"))) {
+                if (isBlockOpen && (line.startsWith("datasource") || line.startsWith("model"))) {
                     throw new IllegalStateException("블럭이 닫히지 않았습니다.");
                 }
 
-                if (foundBlock) {
+                if (isBlockOpen) {
                     if (line.equals("}")) {
                         blocks.add(new Block(name, blockContent.toString()));
-                        foundBlock = false;
-                        closedBlock = true;
+                        isBlockOpen = false;
                     } else {
                         blockContent.append(line).append("\n");
                     }
                 }
             }
 
-            if (!closedBlock) {
+            if (isBlockOpen) {
                 throw new IllegalStateException("블럭이 닫히지 않았습니다.");
             }
         } catch (IOException e) {
