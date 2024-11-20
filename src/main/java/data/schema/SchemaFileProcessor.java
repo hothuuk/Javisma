@@ -24,6 +24,12 @@ public class SchemaFileProcessor {
         this.modelParser = new ModelParser();
     }
 
+    public SchemaFileProcessor(LoadSchemaFiles loadSchemaFiles, DatasourceParser datasourceParser, ModelParser modelParser) {
+        this.loadSchemaFiles = loadSchemaFiles;
+        this.datasourceParser = datasourceParser;
+        this.modelParser = modelParser;
+    }
+
     public Datasource parseDatasource() {
         Block block = loadBlocks("datasource").get(0);
         return datasourceParser.parse(block);
@@ -47,6 +53,7 @@ public class SchemaFileProcessor {
         try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
             String line;
             boolean foundBlock = false;
+            boolean closedBlock = true;
             StringBuilder blockContent = new StringBuilder();
             String name = "";
 
@@ -54,30 +61,35 @@ public class SchemaFileProcessor {
                 line = line.trim();
 
                 if (line.startsWith(blockName)) {
-                    if (foundBlock) {
-                        blocks.add(new Block(name, blockContent.toString()));
+                    if (!closedBlock) {
+                        throw new IllegalStateException("블럭이 닫히지 않았습니다.");
                     }
 
                     foundBlock = true;
+                    closedBlock = false;
                     name = line.split(" ")[1];
                     blockContent = new StringBuilder();
                     continue;
+                }
+
+                if (foundBlock && (line.startsWith("datasource") || line.startsWith("model"))) {
+                    throw new IllegalStateException("블럭이 닫히지 않았습니다.");
                 }
 
                 if (foundBlock) {
                     if (line.equals("}")) {
                         blocks.add(new Block(name, blockContent.toString()));
                         foundBlock = false;
+                        closedBlock = true;
                     } else {
                         blockContent.append(line).append("\n");
                     }
                 }
             }
 
-            if (foundBlock) {
-                blocks.add(new Block(name, blockContent.toString()));
+            if (!closedBlock) {
+                throw new IllegalStateException("블럭이 닫히지 않았습니다.");
             }
-
         } catch (IOException e) {
             e.printStackTrace();
         }
