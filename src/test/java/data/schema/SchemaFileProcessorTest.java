@@ -130,7 +130,7 @@ public class SchemaFileProcessorTest {
 
         // When & Then: Expect an exception due to missing fields
         Exception exception = assertThrows(IllegalStateException.class, mockSchemaFileProcessor::parseDatasource);
-        assertTrue(exception.getMessage().contains("Datasource fields are missing."), "Exception message is incorrect.");
+        assertTrue(exception.getMessage().contains("Datasource fields are missing: password"), "Exception message is incorrect.");
     }
 
     private SchemaFileProcessor createMockSchemaFileProcessor(String mockSchema) {
