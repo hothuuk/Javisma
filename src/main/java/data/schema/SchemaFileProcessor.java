@@ -69,8 +69,14 @@ public class SchemaFileProcessor {
                         throw new IllegalStateException("블럭이 닫히지 않았습니다.");
                     }
 
+                    String[] blockTitle = line.split(" ");
+
+                    if (blockTitle.length < 3) {
+                        throw new IllegalStateException(blockName + "'s middle name is missing");
+                    }
+
+                    name = blockTitle[1];
                     isBlockOpen = true;
-                    name = line.split(" ")[1];
                     blockContent = new StringBuilder();
                     continue;
                 }
