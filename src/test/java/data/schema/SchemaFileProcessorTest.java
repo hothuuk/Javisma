@@ -76,7 +76,7 @@ public class SchemaFileProcessorTest {
 
     @Test
     @DisplayName("블럭이 닫히지 않을 경우 테스트")
-    public void block_is_not_closed() throws IOException {
+    public void block_is_not_closed() {
         // Given: 닫히지 않은 블럭을 포함한 스키마 파일 준비
         String mockSchema = """
                 datasource db {
@@ -89,17 +89,7 @@ public class SchemaFileProcessorTest {
                 }
                 """;
 
-        File tempFile = File.createTempFile("schema", ".javisma");
-        tempFile.deleteOnExit();
-
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile))) {
-            writer.write(mockSchema);
-        }
-
-        LoadSchemaFiles mockLoadSchemaFiles = mock(LoadSchemaFiles.class);
-        when(mockLoadSchemaFiles.load()).thenReturn(tempFile.toURI().toURL());
-
-        SchemaFileProcessor mockSchemaFileProcessor = new SchemaFileProcessor(mockLoadSchemaFiles, new DatasourceParser(), new ModelParser());
+        SchemaFileProcessor mockSchemaFileProcessor = createMockSchemaFileProcessor(mockSchema);
 
         // When & Then: 블럭이 닫히지 않음으로 인해 Exception 발생
         Exception exception = assertThrows(IllegalStateException.class, mockSchemaFileProcessor::parseDatasource);
@@ -108,7 +98,7 @@ public class SchemaFileProcessorTest {
 
     @Test
     @DisplayName("Test for datasource not found")
-    public void datasource_not_found() throws IOException {
+    public void datasource_not_found() {
         // Given: Prepare a schema file that does not contain a datasource
         String mockSchema = """
                 model User {
@@ -118,20 +108,28 @@ public class SchemaFileProcessorTest {
                 }
                 """;
 
-        File tempFile = File.createTempFile("schema", ".javisma");
-        tempFile.deleteOnExit();
-
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile))) {
-            writer.write(mockSchema);
-        }
-
-        LoadSchemaFiles mockLoadSchemaFiles = mock(LoadSchemaFiles.class);
-        when(mockLoadSchemaFiles.load()).thenReturn(tempFile.toURI().toURL());
-
-        SchemaFileProcessor mockSchemaFileProcessor = new SchemaFileProcessor(mockLoadSchemaFiles, new DatasourceParser(), new ModelParser());
+        SchemaFileProcessor mockSchemaFileProcessor = createMockSchemaFileProcessor(mockSchema);
 
         // When & Then: Expect an exception due to missing datasource block
         Exception exception = assertThrows(IllegalStateException.class, mockSchemaFileProcessor::parseDatasource);
         assertTrue(exception.getMessage().contains("Datasource block is missing."), "Exception message is incorrect.");
+    }
+
+    private SchemaFileProcessor createMockSchemaFileProcessor(String mockSchema) {
+        try {
+            File tempFile = File.createTempFile("schema", ".javisma");
+            tempFile.deleteOnExit();
+
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile))) {
+                writer.write(mockSchema);
+            }
+
+            LoadSchemaFiles mockLoadSchemaFiles = mock(LoadSchemaFiles.class);
+            when(mockLoadSchemaFiles.load()).thenReturn(tempFile.toURI().toURL());
+
+            return new SchemaFileProcessor(mockLoadSchemaFiles, new DatasourceParser(), new ModelParser());
+        } catch (IOException e) {
+            throw new RuntimeException("Error creating mock schema processor", e);
+        }
     }
 }
