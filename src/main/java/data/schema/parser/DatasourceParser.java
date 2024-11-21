@@ -23,6 +23,10 @@ public class DatasourceParser {
             }
         }
 
+        if (url.isBlank() || user.isBlank() || password.isBlank()) {
+            throw new IllegalStateException("Datasource fields are missing.");
+        }
+
         return new Datasource(url, user, password);
     }
 }
