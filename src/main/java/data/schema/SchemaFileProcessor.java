@@ -31,8 +31,13 @@ public class SchemaFileProcessor {
     }
 
     public Datasource parseDatasource() {
-        Block block = loadBlocks("datasource").get(0);
-        return datasourceParser.parse(block);
+        List<Block> blocks = loadBlocks("datasource");
+
+        if (blocks.isEmpty()) {
+            throw new IllegalStateException("Datasource block is missing.");
+        }
+
+        return datasourceParser.parse(blocks.get(0));
     }
 
     public List<Model> parseModels() {

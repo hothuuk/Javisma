@@ -99,10 +99,39 @@ public class SchemaFileProcessorTest {
         LoadSchemaFiles mockLoadSchemaFiles = mock(LoadSchemaFiles.class);
         when(mockLoadSchemaFiles.load()).thenReturn(tempFile.toURI().toURL());
 
-        SchemaFileProcessor schemaFileProcessor = new SchemaFileProcessor(mockLoadSchemaFiles, new DatasourceParser(), new ModelParser());
+        SchemaFileProcessor mockSchemaFileProcessor = new SchemaFileProcessor(mockLoadSchemaFiles, new DatasourceParser(), new ModelParser());
 
         // When & Then: 블럭이 닫히지 않음으로 인해 Exception 발생
-        Exception exception = assertThrows(IllegalStateException.class, schemaFileProcessor::parseDatasource);
+        Exception exception = assertThrows(IllegalStateException.class, mockSchemaFileProcessor::parseDatasource);
         assertTrue(exception.getMessage().contains("블럭이 닫히지 않았습니다."), "예외 메시지가 올바르지 않습니다.");
+    }
+
+    @Test
+    @DisplayName("Test for datasource not found")
+    public void datasource_not_found() throws IOException {
+        // Given: Prepare a schema file that does not contain a datasource
+        String mockSchema = """
+                model User {
+                    id Int
+                    email String
+                    name String
+                }
+                """;
+
+        File tempFile = File.createTempFile("schema", ".javisma");
+        tempFile.deleteOnExit();
+
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile))) {
+            writer.write(mockSchema);
+        }
+
+        LoadSchemaFiles mockLoadSchemaFiles = mock(LoadSchemaFiles.class);
+        when(mockLoadSchemaFiles.load()).thenReturn(tempFile.toURI().toURL());
+
+        SchemaFileProcessor mockSchemaFileProcessor = new SchemaFileProcessor(mockLoadSchemaFiles, new DatasourceParser(), new ModelParser());
+
+        // When & Then: Expect an exception due to missing datasource block
+        Exception exception = assertThrows(IllegalStateException.class, mockSchemaFileProcessor::parseDatasource);
+        assertTrue(exception.getMessage().contains("Datasource block is missing."), "Exception message is incorrect.");
     }
 }
