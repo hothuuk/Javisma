@@ -2,31 +2,30 @@ package data.schema.parser;
 
 import data.schema.config.Datasource;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class DatasourceParser {
 
     public Datasource parse(Block block) {
         String blockContent = block.content();
-
-        String url = "";
-        String user = "";
-        String password = "";
+        Map<String, String> fields = new HashMap<>();
 
         for (String line : blockContent.split("\n")) {
-            String[] tokens = line.split(" = ");
-            String key = tokens[0];
-            String value = tokens[1].replace("\"", "");
+            String[] tokens = line.split("=");
 
-            switch (key) {
-                case "url" -> url = value;
-                case "user" -> user = value;
-                case "password" -> password = value;
+            if (tokens.length == 2) {
+                fields.put(tokens[0].trim(), tokens[1].replace("\"", "").trim());
             }
         }
 
-        if (url.isBlank() || user.isBlank() || password.isBlank()) {
-            throw new IllegalStateException("Datasource fields are missing.");
+        if (!fields.containsKey("url") || !fields.containsKey("user") || !fields.containsKey("password")) {
+            throw new IllegalStateException("Datasource fields are missing: "
+                    + (fields.containsKey("url") ? "" : "url ")
+                    + (fields.containsKey("user") ? "" : "user ")
+                    + (fields.containsKey("password") ? "" : "password"));
         }
 
-        return new Datasource(url, user, password);
+        return new Datasource(fields.get("url"), fields.get("user"), fields.get("password"));
     }
 }
