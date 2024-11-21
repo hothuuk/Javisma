@@ -133,6 +133,32 @@ public class SchemaFileProcessorTest {
         assertTrue(exception.getMessage().contains("Datasource fields are missing: password"), "Exception message is incorrect.");
     }
 
+    @Test
+    @DisplayName("Test for missing middle name")
+    public void missing_middle_name() {
+        // Given: Prepare a schema file that missing middle name
+        String mockSchema = """
+                datasource {
+                    //...
+                }
+                
+                model {
+                    //...
+                }
+                """; // missing middle name blocks
+
+        SchemaFileProcessor mockSchemaFileProcessor = createMockSchemaFileProcessor(mockSchema);
+
+        // When & Then: Expect an exception due to missing middle name
+        Exception datasourceException = assertThrows(IllegalStateException.class, mockSchemaFileProcessor::parseDatasource);
+        Exception modelException = assertThrows(IllegalStateException.class, mockSchemaFileProcessor::parseModels);
+
+        assertAll(
+                () -> assertTrue(datasourceException.getMessage().contains("datasource's middle name is missing"), "Exception message is incorrect."),
+                () -> assertTrue(modelException.getMessage().contains("model's middle name is missing"), "Exception message is incorrect.")
+        );
+    }
+
     private SchemaFileProcessor createMockSchemaFileProcessor(String mockSchema) {
         try {
             File tempFile = File.createTempFile("schema", ".javisma");
