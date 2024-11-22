@@ -145,17 +145,33 @@ public class SchemaFileProcessorTest {
                 model {
                     //...
                 }
-                """; // missing middle name blocks
+                """; // Missing middle name blocks
 
         SchemaFileProcessor mockSchemaFileProcessor = createMockSchemaFileProcessor(mockSchema);
 
-        // When & Then: Expect an exception due to missing middle name
-        Exception datasourceException = assertThrows(IllegalStateException.class, mockSchemaFileProcessor::parseDatasource);
-        Exception modelException = assertThrows(IllegalStateException.class, mockSchemaFileProcessor::parseModels);
+        // When & Then: Expect an exceptions for missing middle name in datasource and model
+        Exception datasourceException = assertThrows(
+                IllegalStateException.class,
+                mockSchemaFileProcessor::parseDatasource,
+                "Expected exception when parsing datasource."
+        );
 
-        assertAll(
-                () -> assertTrue(datasourceException.getMessage().contains("datasource's middle name is missing"), "Exception message is incorrect."),
-                () -> assertTrue(modelException.getMessage().contains("model's middle name is missing"), "Exception message is incorrect.")
+        Exception modelException = assertThrows(
+                IllegalStateException.class,
+                mockSchemaFileProcessor::parseModels,
+                "Expected exception when parsing models."
+        );
+
+        // Assert: Verify exception messages
+        assertAll("Verify exception messages for missing middle names",
+                () -> assertTrue(
+                        datasourceException.getMessage().contains("datasource's middle name is missing"),
+                        "Datasource exception message is incorrect."
+                ),
+                () -> assertTrue(
+                        modelException.getMessage().contains("model's middle name is missing"),
+                        "Model exception message is incorrect."
+                )
         );
     }
 
