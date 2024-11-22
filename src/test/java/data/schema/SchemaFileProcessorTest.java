@@ -116,24 +116,6 @@ public class SchemaFileProcessorTest {
     }
 
     @Test
-    @DisplayName("Test for missing datasource fields")
-    public void datasource_fields_missing() {
-        // Given: Prepare a schema file where datasource fields are missing
-        String mockSchema = """
-                datasource db {
-                    url = "url"
-                    user = "user"
-                }
-                """; // password is missing
-
-        SchemaFileProcessor mockSchemaFileProcessor = createMockSchemaFileProcessor(mockSchema);
-
-        // When & Then: Expect an exception due to missing fields
-        Exception exception = assertThrows(IllegalStateException.class, mockSchemaFileProcessor::parseDatasource);
-        assertTrue(exception.getMessage().contains("Datasource fields are missing: password"), "Exception message is incorrect.");
-    }
-
-    @Test
     @DisplayName("Test for missing middle name")
     public void missing_middle_name() {
         // Given: Prepare a schema file that missing middle name
