@@ -33,4 +33,21 @@ public class DatasourceParserTest {
         Exception exception = assertThrows(IllegalStateException.class, () -> datasourceParser.parse(block));
         assertTrue(exception.getMessage().contains("Datasource fields are missing: password"), "Exception message is incorrect.");
     }
+
+    @Test
+    @DisplayName("Test for missing equal signs in content")
+    public void missing_equal_signs() {
+        // Given: Prepare a block content where missing equal signs
+        String mockContent = """
+                url "url"
+                user "user"
+                password "password"
+                """; // Missing equal signs
+
+        Block block = new Block("db", mockContent);
+
+        // When & Then: Expect an exception due to missing equal signs
+        Exception exception = assertThrows(IllegalStateException.class, () -> datasourceParser.parse(block));
+        assertTrue(exception.getMessage().contains("Equal signs are missing on datasource content"), "Exception message is incorrect.");
+    }
 }

@@ -14,6 +14,10 @@ public class DatasourceParser {
         for (String line : blockContent.split("\n")) {
             String[] tokens = line.split("=");
 
+            if (tokens.length == 1) {
+                throw new IllegalStateException("Equal signs are missing on datasource content");
+            }
+
             if (tokens.length == 2) {
                 fields.put(tokens[0].trim(), tokens[1].replace("\"", "").trim());
             }
