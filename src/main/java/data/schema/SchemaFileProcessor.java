@@ -65,6 +65,10 @@ public class SchemaFileProcessor {
                 line = line.trim();
 
                 if (line.startsWith(blockName)) {
+                    if (line.charAt(line.length() - 1) != '{') {
+                        throw new IllegalStateException("The block is not properly opened. Expected '{' at the end of the line.");
+                    }
+
                     if (isBlockOpen) {
                         throw new IllegalStateException("블럭이 닫히지 않았습니다.");
                     }
