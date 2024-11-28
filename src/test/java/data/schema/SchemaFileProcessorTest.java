@@ -75,6 +75,26 @@ public class SchemaFileProcessorTest {
     }
 
     @Test
+    @DisplayName("Test if block is not open")
+    public void throw_exception_if_block_is_not_open() {
+        // Given: Prepare a schema file for a block that is not open
+        String mockSchema = """
+                datasource db
+                    url = "url"
+                    user = "user"
+                    password = "password"
+                }
+                """;
+
+        SchemaFileProcessor mockSchemaFileProcessor = createMockSchemaFileProcessor(mockSchema);
+
+        // When & Then: Expect an exception due to block is not open
+        Exception exception = assertThrows(IllegalStateException.class, mockSchemaFileProcessor::parseDatasource);
+        assertTrue(exception.getMessage().contains("The block is not properly opened. Expected '{' at the end of the line."),
+                "Exception message is incorrect.");
+    }
+
+    @Test
     @DisplayName("블럭이 닫히지 않을 경우 테스트")
     public void block_is_not_closed() {
         // Given: 닫히지 않은 블럭을 포함한 스키마 파일 준비
