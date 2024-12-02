@@ -33,4 +33,21 @@ public class ModelParserTest {
         Exception exception = assertThrows(IllegalStateException.class, () -> modelParser.parse(block));
         assertTrue(exception.getMessage().contains("Field name is missing at line 2 in the 'User' model."), "Exception message is incorrect.");
     }
+
+    @Test
+    @DisplayName("Test: If field type is missing.")
+    public void throw_exception_if_field_type_is_missing() {
+        // Given: Prepare block content with fields with missing types.
+        String mockContent = """
+                id Int
+                email String
+                name
+                """;
+
+        Block block = new Block("User", mockContent);
+
+        // When & Then: Expect an exception due to type of the field is missing.
+        Exception exception = assertThrows(IllegalStateException.class, () -> modelParser.parse(block));
+        assertTrue(exception.getMessage().contains("Field type is missing at line 3 in the 'User' model."), "Exception message is incorrect.");
+    }
 }
