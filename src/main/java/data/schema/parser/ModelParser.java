@@ -24,6 +24,10 @@ public class ModelParser {
                     throw new IllegalStateException(
                             String.format("Field name is missing at line %d in the '%s' model.", lineNumber, block.name())
                     );
+                } else {
+                    throw new IllegalStateException(
+                            String.format("Field type is missing at line %d in the '%s' model.", lineNumber, block.name())
+                    );
                 }
             }
 
