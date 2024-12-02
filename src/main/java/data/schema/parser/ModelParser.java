@@ -34,6 +34,12 @@ public class ModelParser {
             String name = tokens[0];
             String type = tokens[1];
 
+            if (!VALID_TYPES.contains(type)) {
+                throw new IllegalStateException(
+                        String.format("Field type is invalid at line %d in the '%s' model.", lineNumber, block.name())
+                );
+            }
+
             fields.add(new Field(name, type));
         }
 
