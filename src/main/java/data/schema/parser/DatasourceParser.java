@@ -23,13 +23,18 @@ public class DatasourceParser {
             }
         }
 
-        if (!fields.containsKey("url") || !fields.containsKey("user") || !fields.containsKey("password")) {
+        if (!fields.containsKey("driver") ||
+                !fields.containsKey("url") ||
+                !fields.containsKey("user") ||
+                !fields.containsKey("password")
+        ) {
             throw new IllegalStateException("Datasource fields are missing: "
+                    + (fields.containsKey("driver") ? "" : "driver ")
                     + (fields.containsKey("url") ? "" : "url ")
                     + (fields.containsKey("user") ? "" : "user ")
                     + (fields.containsKey("password") ? "" : "password"));
         }
 
-        return new Datasource(fields.get("url"), fields.get("user"), fields.get("password"));
+        return new Datasource(fields.get("driver"), fields.get("url"), fields.get("user"), fields.get("password"));
     }
 }

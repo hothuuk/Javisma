@@ -25,16 +25,29 @@ public class SchemaFileProcessorTest {
     }
 
     @Test
-    @DisplayName("데이터베이스 정보 파싱 테스트")
-    public void schema_datasource_parsing() {
-        // Given & When: 파싱 수행
-        Datasource datasource = schemaFileProcessor.parseDatasource();
+    @DisplayName("Test: If datasource parsing is well.")
+    public void should_parse_datasource_successfully() {
+        // Given: Prepare a schema file with datasource.
+        String mockSchema = """
+                datasource db {
+                    driver = "driver"
+                    url = "url"
+                    user = "user"
+                    password = "password"
+                }
+                """;
 
-        // Then: 값 검증
+        SchemaFileProcessor mockSchemaFileProcessor = createMockSchemaFileProcessor(mockSchema);
+
+        // When: Datasource parsing.
+        Datasource datasource = mockSchemaFileProcessor.parseDatasource();
+
+        // Then: Verify that the data source contains the correct values.
         assertAll(
-                () -> assertEquals("DATABASE_URL", datasource.url(), "url 이 맞지 않습니다."),
-                () -> assertEquals("DATABASE_USER", datasource.user(), "user 가 맞지 않습니다."),
-                () -> assertEquals("DATABASE_PASSWORD", datasource.password(), "password 가 맞지 않습니다.")
+                () -> assertEquals("driver", datasource.driver(), "The value of driver is incorrect."),
+                () -> assertEquals("url", datasource.url(), "The value of url is incorrect."),
+                () -> assertEquals("user", datasource.user(), "The value of user is incorrect."),
+                () -> assertEquals("password", datasource.password(), "The value of password is incorrect.")
         );
     }
 
