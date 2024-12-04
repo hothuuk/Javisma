@@ -31,7 +31,7 @@ public class DatasourceParserTest {
 
         // When & Then: Expect an exception due to missing fields
         Exception exception = assertThrows(IllegalStateException.class, () -> datasourceParser.parse(block));
-        assertTrue(exception.getMessage().contains("Datasource fields are missing: password"), "Exception message is incorrect.");
+        assertTrue(exception.getMessage().contains("Datasource fields are missing: driver password"), "Exception message is incorrect.");
     }
 
     @Test
